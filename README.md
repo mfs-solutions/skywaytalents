@@ -7,7 +7,26 @@ A professional, corporate-designed casting call application form for Sky Way Tal
 **Agency Details:**
 - **Name:** Sky Way Talents
 - **Address:** 16 George Street, Lewisham, England, SE13 5HE
-- **Email:** casting@skywaytalents.co.uk
+- **Email:** info@SKYWAYTALENTS.UK
+- **Phone:** +44 7599577729
+- **Website:** SKYWAYTALENTS.UK
+
+## 🚀 Backend: Supabase
+
+This application uses **Supabase** as the backend for database and file storage:
+
+### Supabase Features
+- ✅ PostgreSQL Database for storing applications
+- ✅ Object Storage for images and videos
+- ✅ Row Level Security (RLS) for access control
+- ✅ Real-time capabilities (optional)
+- ✅ Free tier available for testing
+- ✅ Scalable to production with pay-as-you-go pricing
+
+### Quick Setup
+See **[SUPABASE_QUICK_START.md](SUPABASE_QUICK_START.md)** for 5-minute setup instructions.
+
+Full documentation: **[SUPABASE_INTEGRATION.md](SUPABASE_INTEGRATION.md)**
 
 ## 👥 Casting Positions
 
@@ -150,9 +169,9 @@ Confirmation screen featuring:
 - **Framework:** React 19 with TypeScript
 - **Styling:** Tailwind CSS
 - **Build Tool:** Vite
-- **Backend:** Firebase Firestore (data storage)
-- **Storage:** Firebase Storage (file uploads)
-- **Authentication:** Firebase Anonymous Auth
+- **Backend:** Supabase (PostgreSQL + Storage)
+- **Authentication:** Row Level Security (RLS)
+- **Deployment:** AWS Amplify (frontend)
 
 ### Project Structure
 

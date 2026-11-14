@@ -11,7 +11,7 @@ import { TermsSubmitStep } from './TermsSubmitStep';
 import { SuccessPage } from './SuccessPage';
 import { LandingPage } from './LandingPage';
 import { FormData, initialFormData, UploadProgress } from '../../types';
-import { submitApplication, initializeFirebaseAndAuth, FirebaseConfigError } from '../../firebase';
+import { submitApplicationToSupabase } from '../../lib/supabaseService';
 import { ConfigErrorOverlay } from '../common/ConfigErrorOverlay';
 
 export const ApplicationWrapper: React.FC = () => {
@@ -26,25 +26,20 @@ export const ApplicationWrapper: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [configError, setConfigError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        await initializeFirebaseAndAuth();
-      } catch (error) {
-        if (error instanceof FirebaseConfigError) {
-          setConfigError(error.message);
-        } else {
-          setConfigError("An unexpected error occurred during application startup.");
-          console.error(error);
-        }
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-    initialize();
+    // Supabase initializes automatically, no async setup needed
+    // But verify environment variables are configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      setConfigError(
+        'Supabase configuration is missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment variables.'
+      );
+    }
   }, []);
 
   const nextStep = () => {
@@ -87,15 +82,16 @@ export const ApplicationWrapper: React.FC = () => {
     setUploadProgress({});
 
     try {
-      const id = await submitApplication(formData, (field, progress) => {
+      const id = await submitApplicationToSupabase(formData, (field, progress) => {
         setUploadProgress((prev) => ({ ...prev, [field]: progress }));
       });
       setApplicationId(id);
       nextStep();
     } catch (error) {
       console.error(error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setSubmissionError(
-        'An error occurred during submission. Please check your connection and file sizes, then try again.'
+        `Submission failed: ${errorMessage}. Please check your connection and file sizes, then try again.`
       );
     } finally {
       setIsSubmitting(false);
@@ -203,33 +199,31 @@ export const ApplicationWrapper: React.FC = () => {
   if (configError) {
     return (
       <ConfigErrorOverlay
-        title="Firebase Configuration Error"
+        title="Supabase Configuration Error"
         message={configError}
         instructions={
           <>
-            <p className="font-bold mb-2">To fix this, enable Anonymous Authentication in your Firebase project:</p>
+            <p className="font-bold mb-2">To fix this, configure Supabase environment variables:</p>
             <ol className="list-decimal list-inside space-y-1">
               <li>
-                Go to the{' '}
-                <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">
-                  Firebase Console
+                Go to{' '}
+                <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                  Supabase Dashboard
                 </a>
                 .
               </li>
+              <li>Select your project and go to Settings &gt; API.</li>
+              <li>Copy your Project URL and anon key.</li>
               <li>
-                Select your project (<span className="font-mono bg-slate-300 px-1 rounded">genlux-ai</span>).
+                Create a <span className="font-mono bg-slate-300 px-1 rounded">.env.local</span> file in the project root.
               </li>
-              <li>
-                Navigate to <span className="font-bold">Authentication</span> in the Build section.
-              </li>
-              <li>
-                Go to the <span className="font-bold">Sign-in method</span> tab.
-              </li>
-              <li>
-                Find <span className="font-bold">Anonymous</span> in the provider list and enable it.
-              </li>
-              <li>Save your changes and refresh this page.</li>
+              <li>Add the following variables:</li>
             </ol>
+            <pre className="bg-slate-800 text-white p-3 rounded mt-2 text-xs overflow-x-auto">
+{`VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here`}
+            </pre>
+            <li className="mt-2">Restart your development server.</li>
           </>
         }
       />
