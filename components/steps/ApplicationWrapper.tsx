@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { LandingPage } from './LandingPage';
-import { ApplicationForm } from './ApplicationForm';
-import { PortfolioUpload } from './PortfolioUpload';
+import { PersonalInfoStep } from './PersonalInfoStep';
+import { MeasurementsStep } from './MeasurementsStep';
+import { ExperienceStep } from './ExperienceStep';
+import { ContentComfortStep } from './ContentComfortStep';
+import { HeadshotUploadStep } from './HeadshotUploadStep';
+import { FullBodyUploadStep } from './FullBodyUploadStep';
+import { VideoUploadStep } from './VideoUploadStep';
+import { TermsSubmitStep } from './TermsSubmitStep';
 import { SuccessPage } from './SuccessPage';
+import { LandingPage } from './LandingPage';
 import { FormData, initialFormData, UploadProgress } from '../../types';
 import { submitApplication, initializeFirebaseAndAuth, FirebaseConfigError } from '../../firebase';
 import { ConfigErrorOverlay } from '../common/ConfigErrorOverlay';
@@ -11,7 +17,7 @@ import { ConfigErrorOverlay } from '../common/ConfigErrorOverlay';
 export const ApplicationWrapper: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const step = parseInt(searchParams.get('step') || '1');
+  const step = parseInt(searchParams.get('step') || '0');
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,17 +57,19 @@ export const ApplicationWrapper: React.FC = () => {
   };
 
   const prevStep = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setSearchParams({ step: (step - 1).toString() });
-      window.scrollTo(0, 0);
-      setIsLoading(false);
-    }, 300);
+    if (step > 0) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setSearchParams({ step: (step - 1).toString() });
+        window.scrollTo(0, 0);
+        setIsLoading(false);
+      }, 300);
+    }
   };
 
   const restart = () => {
     setFormData(initialFormData);
-    setSearchParams({ step: '1' });
+    setSearchParams({ step: '0' });
     setIsSubmitting(false);
     setSubmissionError(null);
     setApplicationId(null);
@@ -96,11 +104,19 @@ export const ApplicationWrapper: React.FC = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 1:
+      case 0:
         return <LandingPage nextStep={nextStep} />;
+      case 1:
+        return (
+          <PersonalInfoStep
+            nextStep={nextStep}
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
       case 2:
         return (
-          <ApplicationForm
+          <MeasurementsStep
             nextStep={nextStep}
             prevStep={prevStep}
             formData={formData}
@@ -109,42 +125,76 @@ export const ApplicationWrapper: React.FC = () => {
         );
       case 3:
         return (
-          <PortfolioUpload
-            nextStep={handleSubmit}
+          <ExperienceStep
+            nextStep={nextStep}
             prevStep={prevStep}
             formData={formData}
             updateFormData={updateFormData}
-            isSubmitting={isSubmitting}
-            submissionError={submissionError}
-            uploadProgress={uploadProgress}
           />
         );
       case 4:
+        return (
+          <ContentComfortStep
+            nextStep={nextStep}
+            prevStep={prevStep}
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
+      case 5:
+        return (
+          <HeadshotUploadStep
+            nextStep={nextStep}
+            prevStep={prevStep}
+            formData={formData}
+            updateFormData={updateFormData}
+            uploadProgress={uploadProgress}
+          />
+        );
+      case 6:
+        return (
+          <FullBodyUploadStep
+            nextStep={nextStep}
+            prevStep={prevStep}
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
+      case 7:
+        return (
+          <VideoUploadStep
+            nextStep={nextStep}
+            prevStep={prevStep}
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
+      case 8:
+        return (
+          <TermsSubmitStep
+            nextStep={nextStep}
+            prevStep={prevStep}
+            formData={formData}
+            updateFormData={updateFormData}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            submissionError={submissionError}
+          />
+        );
+      case 9:
         return <SuccessPage restart={restart} applicationId={applicationId} />;
       default:
-        navigate('/?step=1');
+        navigate('/?step=0');
         return <LandingPage nextStep={nextStep} />;
     }
   };
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-accent flex items-center justify-center">
-        <div className="flex items-center space-x-2 text-text-primary">
-          <svg
-            className="animate-spin h-5 w-5"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <span>Initializing Application...</span>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-slate-700 font-semibold">Initializing Application...</p>
         </div>
       </div>
     );
@@ -187,51 +237,19 @@ export const ApplicationWrapper: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-accent text-text-primary flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 flex flex-col">
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
-          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4">
-            <svg
-              className="animate-spin h-8 w-8 text-primary"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            <p className="text-text-primary font-semibold">Loading...</p>
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-8 flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
+            <p className="text-slate-700 font-semibold">Loading...</p>
           </div>
         </div>
       )}
 
-      <main className="flex-1 p-4 md:p-8">
-        <div className="container mx-auto max-w-4xl">
-          {/* Step Indicator */}
-          {step !== 4 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold text-text-primary">
-                  Step {step} of 3
-                </p>
-                <p className="text-sm text-text-light">{Math.round((step / 3) * 100)}% Complete</p>
-              </div>
-              <div className="w-full bg-gray-300 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-gold to-yellow-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(step / 3) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
-
-          {renderStep()}
-        </div>
+      <main className="flex-1">
+        {renderStep()}
       </main>
     </div>
   );
