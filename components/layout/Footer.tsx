@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
   return (
@@ -17,7 +18,7 @@ export const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-sm text-gray-300">
-              Connecting talented actresses with outstanding casting opportunities across the UK and beyond.
+              Connecting talented actresses with outstanding casting opportunities across the UK and beyond. Established in 2019.
             </p>
           </div>
 
@@ -28,12 +29,24 @@ export const Footer: React.FC = () => {
               <div>
                 <p className="font-semibold text-white">Address</p>
                 <p>16 George Street</p>
-                <p>Lewisham, England</p>
-                <p>SE13 5HE</p>
+                <p>Lewisham, London</p>
+                <p>SE13 5HE, England</p>
               </div>
               <div>
                 <p className="font-semibold text-white">Email</p>
-                <p>casting@skywaytalents.co.uk</p>
+                <p>
+                  <a href="mailto:info@skywaytalents.uk" className="hover:text-gold transition">
+                    info@skywaytalents.uk
+                  </a>
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-white">Phone</p>
+                <p>
+                  <a href="tel:+447599577729" className="hover:text-gold transition">
+                    +44 7599 577729
+                  </a>
+                </p>
               </div>
             </div>
           </div>
@@ -42,10 +55,31 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="font-bold text-lg mb-4 font-serif">Quick Links</h4>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><a href="#" className="hover:text-gold transition">Home</a></li>
-              <li><a href="#" className="hover:text-gold transition">About Us</a></li>
-              <li><a href="#" className="hover:text-gold transition">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-gold transition">Terms & Conditions</a></li>
+              <li>
+                <Link to="/" className="hover:text-gold transition">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-gold transition">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/apply" className="hover:text-gold transition">
+                  Apply Now
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="hover:text-gold transition">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="hover:text-gold transition">
+                  Terms & Conditions
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -53,9 +87,12 @@ export const Footer: React.FC = () => {
         {/* Divider */}
         <div className="border-t border-gray-400 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-300">
-            <p>&copy; 2024 Sky Way Talents. All rights reserved.</p>
+            <p>&copy; 2019-2025 Sky Way Talents. All rights reserved.</p>
             <p className="mt-4 md:mt-0">
-              Casting Call Application • <span className="text-gold">Now Open</span>
+              <a href="https://skywaytalents.uk" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition">
+                skywaytalents.uk
+              </a>
+              {' '} • <span className="text-gold">Professional Casting Services</span>
             </p>
           </div>
         </div>
